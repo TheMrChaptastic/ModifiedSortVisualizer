@@ -1,4 +1,4 @@
-# SortVisualizer
+# Modified SortVisualizer from Michael Duffy https://www.youtube.com/@swpctx
 
 ## Summary
 
