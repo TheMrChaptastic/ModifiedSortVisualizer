@@ -17,11 +17,14 @@ namespace SortVisualizer
         BackgroundWorker bgw = null;
 
         int speed = 0;
+        bool _isWorking = false;
 
         public static int Delay = 0;
         public static int Diff = 0;
         public static int MaxWidth = 0;
         public static int NumEntries = 0;
+
+        public static bool IsCancelling = false;
 
         static int _swaps = 0;
         public static int Swaps
@@ -69,6 +72,11 @@ namespace SortVisualizer
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            if(IsCancelling == true || _isWorking == true) 
+            { 
+                MessageBox.Show("Let current worker finish before starting another");
+                return; 
+            }
             if (TheArray == null) btnReset_Click(null, null);
 
             speed = speedBar.Value;
@@ -83,6 +91,11 @@ namespace SortVisualizer
             if (bgw != null)
             {
                 bgw.CancelAsync();
+                IsCancelling = true;
+                if (!bgw.IsBusy)
+                {
+                    IsCancelling = false;
+                }
             }
             Swaps = 0;
             Comparisons = 0;
@@ -109,7 +122,11 @@ namespace SortVisualizer
             }
             for (int i = 0; i < NumEntries; i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)MaxWidth / NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)MaxWidth / NumEntries)), MaxVal);
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)MaxWidth / NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)MaxWidth / NumEntries) * .95), MaxVal);
+            }
+            if (sender != null)
+            {
+                btnReset_Click(null, null);
             }
         }
 
@@ -123,6 +140,8 @@ namespace SortVisualizer
 
             BackgroundWorker zz = new BackgroundWorker();
             zz.DoWork += new DoWorkEventHandler(bw_DoWork);
+
+            _isWorking = true;
 
             string SortEngineName = (string)e.Argument;
             Type type = Type.GetType("SortVisualizer." + SortEngineName);
@@ -143,6 +162,14 @@ namespace SortVisualizer
             catch (Exception ex)
             {
             }
+            if (IsCancelling)
+            {
+                Swaps = 0;
+                Comparisons = 0;
+                btnReset_Click(null, null);
+            }
+            IsCancelling = false;
+            _isWorking = false;
         }
 
         private void bw_DoWork(object sender, DoWorkEventArgs e)

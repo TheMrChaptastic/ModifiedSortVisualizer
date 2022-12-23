@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SortVisualizer
@@ -21,12 +22,18 @@ namespace SortVisualizer
             TheArray = TheArray_In;
             g = g_In;
             MaxVal = MaxVal_In;
+
+            ReDraw();
         }
 
         public void NextStep()
         {
             for (int i = 0; i < TheArray.Count() - 1; i++)
             {
+                if (Form1.IsCancelling)
+                {
+                    break;
+                }
                 DrawSelectedBar(i, TheArray[i]);
                 DrawSelectedBar(i + 1, TheArray[i + 1]);
                 Task.Delay(Form1.Delay).Wait();
@@ -57,12 +64,12 @@ namespace SortVisualizer
         private void DrawBar(int position, int height)
         {
             g.FillRectangle(BlackBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), 0, (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries)), MaxVal);
-            g.FillRectangle(WhiteBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[position], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries)), height);
+            g.FillRectangle(WhiteBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[position], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * .95), height);
         }
 
         private void DrawSelectedBar(int position, int height)
         {
-            g.FillRectangle(PinkBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[position], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries)), height);
+            g.FillRectangle(PinkBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[position], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * .95), height);
         }
 
         public bool IsSorted()
@@ -78,7 +85,7 @@ namespace SortVisualizer
         {
             for (int i = 0; i < (TheArray.Count() - 1); i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries)), MaxVal);
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * .95), MaxVal);
             }
         }
     }
