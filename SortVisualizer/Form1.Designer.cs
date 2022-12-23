@@ -147,6 +147,7 @@
             this.sizeTextBox.Name = "sizeTextBox";
             this.sizeTextBox.Size = new System.Drawing.Size(104, 20);
             this.sizeTextBox.TabIndex = 7;
+            this.sizeTextBox.Text = "10";
             // 
             // speedBar
             // 
