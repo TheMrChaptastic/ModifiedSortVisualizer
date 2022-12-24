@@ -100,7 +100,7 @@ namespace SortVisualizer
             {
                 if (num >= 10 && num <= 1000)
                 {
-                    if (num <= 57)
+                    if ((double)num / MaxWidth < 0.03)
                     {
                         Seperation = 0.95F;
                     }
@@ -128,7 +128,7 @@ namespace SortVisualizer
             for (int i = 0; i < NumEntries; i++)
             {
                 if (i == NumEntries - 1){}
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)MaxWidth / NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)MaxWidth / NumEntries) * Form1.Seperation), MaxVal);
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)MaxWidth / NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)MaxWidth / NumEntries) * Seperation), MaxVal);
             }
             if (sender != null)
             {
