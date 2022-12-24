@@ -16,6 +16,8 @@ namespace SortVisualizer
         public static int Diff = 0;
         public static int MaxWidth = 0;
         public static int NumEntries = 0;
+        public static int NumOfRuns = 0;
+        public static float Seperation = 0.95F;
         public static bool IsCancelling = false;
 
         int[] TheArray;
@@ -98,6 +100,14 @@ namespace SortVisualizer
             {
                 if (num >= 10 && num <= 1000)
                 {
+                    if (num <= 57)
+                    {
+                        Seperation = 0.95F;
+                    }
+                    else
+                    {
+                        Seperation = 1;
+                    }
                     NumEntries = num;
                 }
                 else
@@ -117,7 +127,7 @@ namespace SortVisualizer
             }
             for (int i = 0; i < NumEntries; i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)MaxWidth / NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)MaxWidth / NumEntries) * .95), MaxVal);
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)MaxWidth / NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)MaxWidth / NumEntries) * Form1.Seperation), MaxVal);
             }
             if (sender != null)
             {
@@ -144,6 +154,7 @@ namespace SortVisualizer
                 while (!se.IsSorted() && (!bgw.CancellationPending))
                 {
                     se.NextStep();
+                    NumOfRuns++;
 
                     if (!zz.IsBusy)
                     {
@@ -199,6 +210,7 @@ namespace SortVisualizer
 
         private void ClearTrackings()
         {
+            NumOfRuns = 0;
             Swaps = 0;
             Comparisons = 0;
             UpdateLabel();
