@@ -12,19 +12,17 @@ namespace SortVisualizer
 {
     public partial class Form1 : Form
     {
-        int[] TheArray;
-        Graphics g;
-        BackgroundWorker bgw = null;
-
-        int speed = 0;
-        bool _isWorking = false;
-
         public static int Delay = 0;
         public static int Diff = 0;
         public static int MaxWidth = 0;
         public static int NumEntries = 0;
-
         public static bool IsCancelling = false;
+
+        int[] TheArray;
+        int speed = 0;
+        bool _isWorking = false;
+        Graphics g;
+        BackgroundWorker bgw = null;
 
         static int _swaps = 0;
         public static int Swaps
@@ -40,12 +38,6 @@ namespace SortVisualizer
             set => _comparisons = value;
         }
 
-        private void UpdateLabel()
-        {
-            compLabel.Text = Comparisons.ToString();
-            swapLabel.Text = Swaps.ToString();
-        }
-
         public Form1()
         {
             InitializeComponent();
@@ -56,7 +48,7 @@ namespace SortVisualizer
         {
             List<string> ClassList = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
                 .Where(x => typeof(ISortEngine).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .Select(x => x.Name).ToList();
+                .Select(x => x.Name.Remove(0,10)).ToList();
             ClassList.Sort();
             foreach (string entry in ClassList)
             {
@@ -97,18 +89,21 @@ namespace SortVisualizer
                     IsCancelling = false;
                 }
             }
-            Swaps = 0;
-            Comparisons = 0;
-            UpdateLabel();
+            ClearTrackings();
             g = panel1.CreateGraphics();
             MaxWidth = panel1.Width;
-            NumEntries = MaxWidth;
+            NumEntries = 10;
             var isNum = int.TryParse(sizeTextBox.Text, out var num);
             if (isNum)
             {
-                if (num >= 10 && num <= 1095)
+                if (num >= 10 && num <= 1000)
                 {
                     NumEntries = num;
+                }
+                else
+                {
+                    MessageBox.Show("Please use a number within the accepted range! :)\nSetting to default. 10");
+                    sizeTextBox.Text = "10";
                 }
             }
             Diff = MaxWidth - NumEntries;
@@ -135,16 +130,13 @@ namespace SortVisualizer
         public void bgw_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             Delay = GetDelay();
-
             BackgroundWorker bw = sender as BackgroundWorker;
-
             BackgroundWorker zz = new BackgroundWorker();
             zz.DoWork += new DoWorkEventHandler(bw_DoWork);
-
             _isWorking = true;
 
             string SortEngineName = (string)e.Argument;
-            Type type = Type.GetType("SortVisualizer." + SortEngineName);
+            Type type = Type.GetType("SortVisualizer.SortEngine" + SortEngineName);
             var ctors = type.GetConstructors();
             try
             {
@@ -164,8 +156,7 @@ namespace SortVisualizer
             }
             if (IsCancelling)
             {
-                Swaps = 0;
-                Comparisons = 0;
+                ClearTrackings();
                 btnReset_Click(null, null);
             }
             IsCancelling = false;
@@ -198,6 +189,19 @@ namespace SortVisualizer
                 default:
                     return 0;
             }
+        }
+
+        private void UpdateLabel()
+        {
+            compLabel.Text = Comparisons.ToString();
+            swapLabel.Text = Swaps.ToString();
+        }
+
+        private void ClearTrackings()
+        {
+            Swaps = 0;
+            Comparisons = 0;
+            UpdateLabel();
         }
 
         #endregion

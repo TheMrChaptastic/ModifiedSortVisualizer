@@ -138,7 +138,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(72, 13);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Size(10-1095)";
+            this.label2.Text = "Size(10-1000)";
             // 
             // sizeTextBox
             // 
