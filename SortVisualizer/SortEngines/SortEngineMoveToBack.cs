@@ -9,7 +9,7 @@ namespace SortVisualizer
 {
     class SortEngineMoveToBack : ISortEngine
     {
-        private int[] TheArray;
+        private double[] TheArray;
         private Graphics g;
         private int MaxVal;
         Brush WhiteBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
@@ -18,7 +18,7 @@ namespace SortVisualizer
 
         private int CurrentListPointer = 0;
 
-        public SortEngineMoveToBack(int[] TheArray_In, Graphics g_In, int MaxVal_In)
+        public SortEngineMoveToBack(double[] TheArray_In, Graphics g_In, int MaxVal_In)
         {
             TheArray = TheArray_In;
             g = g_In;
@@ -50,7 +50,7 @@ namespace SortVisualizer
 
         private void Rotate(int currentListPointer)
         {
-            int temp = TheArray[CurrentListPointer];
+            double temp = TheArray[CurrentListPointer];
             int EndPoint = TheArray.Count() - 1;
             for (int i = CurrentListPointer; i < EndPoint; i++)
             {
@@ -61,15 +61,15 @@ namespace SortVisualizer
             DrawBar(EndPoint, TheArray[EndPoint]);
         }
 
-        private void DrawBar(int position, int height)
+        private void DrawBar(int position, double height)
         {
-            g.FillRectangle(BlackBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), 0, (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
-            g.FillRectangle(WhiteBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[position], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), height);
+            g.FillRectangle(BlackBrush, (float)(position * ((double)Form1.MaxWidth / Form1.NumEntries)), 0, (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
+            g.FillRectangle(WhiteBrush, (float)(position * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[position]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), (float)height);
         }
 
-        private void DrawSelectedBar(int position, int height)
+        private void DrawSelectedBar(int position, double height)
         {
-            g.FillRectangle(PinkBrush, (float)(position * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[position], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), height);
+            g.FillRectangle(PinkBrush, (float)(position * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[position]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), (float)height);
         }
 
         public bool IsSorted()
@@ -85,7 +85,7 @@ namespace SortVisualizer
         {
             for (int i = 0; i < (TheArray.Count() - 1); i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
             }
         }
     }

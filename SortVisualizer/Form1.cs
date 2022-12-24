@@ -20,7 +20,7 @@ namespace SortVisualizer
         public static float Seperation = 0.95F;
         public static bool IsCancelling = false;
 
-        int[] TheArray;
+        double[] TheArray;
         int speed = 0;
         bool _isWorking = false;
         Graphics g;
@@ -118,20 +118,34 @@ namespace SortVisualizer
             }
             Diff = MaxWidth - NumEntries;
             int MaxVal = panel1.Height;
-            TheArray = new int[NumEntries];
+            TheArray = new double[NumEntries];
             g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.Black), 0, 0, MaxWidth, MaxVal);
-            Random rand = new Random();
             for (int i = 0; i < NumEntries; i++)
             {
-                TheArray[i] = rand.Next(0, MaxVal);
+                TheArray[i] = ((double)MaxVal / NumEntries) + (((double)MaxVal / NumEntries) * i);
             }
+            Shuffle();
             for (int i = 0; i < NumEntries; i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)MaxWidth / NumEntries))), MaxVal - TheArray[i], (float)(Math.Ceiling((double)MaxWidth / NumEntries) * Form1.Seperation), MaxVal);
+                if (i == NumEntries - 1){}
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)MaxWidth / NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)MaxWidth / NumEntries) * Form1.Seperation), MaxVal);
             }
             if (sender != null)
             {
                 btnReset_Click(null, null);
+            }
+        }
+
+        private void Shuffle()
+        {
+            Random rand = new Random();
+            var temp = TheArray[TheArray.Length - 1];
+            for(int i = TheArray.Length - 1; i >= 0; i--)
+            {
+                temp = TheArray[i];
+                var place = rand.Next(0, i);
+                TheArray[i] = TheArray[place];
+                TheArray[place] = temp;
             }
         }
 
