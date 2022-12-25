@@ -58,6 +58,7 @@
     <Compile Include="SortEngines\SortEngineBruteForce.cs" />
     <Compile Include="SortEngines\SortEngineBubble.cs" />
     <Compile Include="SortEngines\SortEngineMoveToBack.cs" />
+    <Compile Include="SortEngines\SortEngineQuick.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
