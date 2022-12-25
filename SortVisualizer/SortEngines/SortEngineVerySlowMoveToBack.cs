@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SortVisualizer
 {
-    class SortEngineMoveToBack : ISortEngine
+    class SortEngineVerySlowMoveToBack : ISortEngine
     {
         private double[] TheArray;
         private Graphics g;
@@ -18,7 +18,7 @@ namespace SortVisualizer
 
         private int CurrentListPointer = 0;
 
-        public SortEngineMoveToBack(double[] TheArray_In, Graphics g_In, int MaxVal_In)
+        public SortEngineVerySlowMoveToBack(double[] TheArray_In, Graphics g_In, int MaxVal_In)
         {
             TheArray = TheArray_In;
             g = g_In;
