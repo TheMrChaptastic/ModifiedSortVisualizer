@@ -85,13 +85,19 @@ namespace SortVisualizer
             if (leftIndex < p)
             {
                 DrawSelectedBar(p, array[p]);
-                DrawBar(i, array[i]);
+                if (i < TheArray.Length)
+                {
+                    DrawBar(i, array[i]);
+                }
                 SortArray(array, leftIndex, p);
             }
             if (i < rightIndex)
             {
                 DrawSelectedBar(i, array[i]);
-                DrawBar(p, array[p]);
+                if (p >= 0)
+                {
+                    DrawBar(p, array[p]);
+                }
                 SortArray(array, i, rightIndex);
             }
         }
