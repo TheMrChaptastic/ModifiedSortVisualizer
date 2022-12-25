@@ -85,7 +85,7 @@ namespace SortVisualizer
         {
             for (int i = 0; i < (TheArray.Count() - 1); i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * (Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries))), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
             }
         }
     }
