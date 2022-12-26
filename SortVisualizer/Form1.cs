@@ -68,7 +68,7 @@ namespace SortVisualizer
         {
             if(IsCancelling == true || _isWorking == true) 
             { 
-                MessageBox.Show("Let current worker finish before starting another");
+                MessageBox.Show("Let current worker finish before starting another.\nClick 'Reset' if trying to make changes.");
                 return; 
             }
             if (TheArray == null) btnReset_Click(null, null);
@@ -160,6 +160,11 @@ namespace SortVisualizer
             _isWorking = true;
 
             string SortEngineName = (string)e.Argument;
+            if(!ConfirmLongRunTime(SortEngineName))
+            { 
+                return; 
+            }
+
             Type type = Type.GetType("SortVisualizer.SortEngine" + SortEngineName);
             var ctors = type.GetConstructors();
             try
@@ -214,6 +219,27 @@ namespace SortVisualizer
                 default:
                     return 0;
             }
+        }
+
+        private bool ConfirmLongRunTime(string engine)
+        {
+            if (engine.Contains("VerySlow") && TheArray.Length >= 30 && speed < 3)
+            {
+                DialogResult dialogResult = MessageBox.Show("This can take a MANY minutes to finish.\nContinue?", "Very Slow Sorting Method", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.No)
+                {
+                    return false;
+                }
+            }
+            if (TheArray.Length >= 100 && speed < 2)
+            {
+                DialogResult dialogResult = MessageBox.Show("This can take a many minutes to finish.\nContinue?", "Big Sample Size", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.No)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void UpdateLabel()

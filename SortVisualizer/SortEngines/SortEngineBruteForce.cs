@@ -29,27 +29,29 @@ namespace SortVisualizer
         {
             for (int i = 0; i < TheArray.Count() - 1; i++)
             {
+                DrawSelectedBar(i, TheArray[i]);
                 for (int u = i + 1; u < TheArray.Count(); u++)
                 {
                     if (Form1.IsCancelling)
                     {
                         break;
                     }
-                    DrawSelectedBar(i, TheArray[i]);
                     DrawSelectedBar(u, TheArray[u]);
                     Task.Delay(Form1.Delay).Wait();
                     Form1.Comparisons++;
                     if (TheArray[i] > TheArray[u])
                     {
                         Swap(i, u);
+                        DrawSelectedBar(i, TheArray[i]);
                         Form1.Swaps++;
                     }
                     else
                     {
-                        DrawBar(i, TheArray[i]);
+                        Task.Delay(10).Wait();
                         DrawBar(u, TheArray[u]);
                     }
                 }
+                DrawBar(i, TheArray[i]);
             }
         }
 
