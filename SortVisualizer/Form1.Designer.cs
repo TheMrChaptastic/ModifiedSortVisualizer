@@ -151,9 +151,9 @@
             // 
             // speedBar
             // 
-            this.speedBar.LargeChange = 4;
+            this.speedBar.LargeChange = 2;
             this.speedBar.Location = new System.Drawing.Point(705, 36);
-            this.speedBar.Maximum = 4;
+            this.speedBar.Maximum = 5;
             this.speedBar.Name = "speedBar";
             this.speedBar.Size = new System.Drawing.Size(104, 45);
             this.speedBar.TabIndex = 8;

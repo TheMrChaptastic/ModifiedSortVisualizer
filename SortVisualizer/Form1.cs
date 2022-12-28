@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SortVisualizer.Factory;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,33 +13,11 @@ namespace SortVisualizer
 {
     public partial class Form1 : Form
     {
-        public static int Delay = 0;
-        public static int Diff = 0;
-        public static int MaxWidth = 0;
-        public static int NumEntries = 0;
-        public static int NumOfRuns = 0;
-        public static float Seperation = 0.95F;
-        public static bool IsCancelling = false;
-
         double[] TheArray;
         int speed = 0;
         bool _isWorking = false;
         Graphics g;
-        BackgroundWorker bgw = null;
 
-        static int _swaps = 0;
-        public static int Swaps
-        {
-            get => _swaps;
-            set => _swaps = value;
-        }
-
-        static int _comparisons = 0;
-        public static int Comparisons
-        {
-            get => _comparisons;
-            set => _comparisons = value;
-        }
 
         public Form1()
         {
@@ -64,9 +43,9 @@ namespace SortVisualizer
             this.Close();
         }
 
-        private void btnStart_Click(object sender, EventArgs e)
+        private async void btnStart_Click(object sender, EventArgs e)
         {
-            if(IsCancelling == true || _isWorking == true) 
+            if(Constants.IsCancelling == true || _isWorking == true) 
             { 
                 MessageBox.Show("Let current worker finish before starting another.\nClick 'Reset' if trying to make changes.");
                 return; 
@@ -74,41 +53,32 @@ namespace SortVisualizer
             if (TheArray == null) btnReset_Click(null, null);
 
             speed = speedBar.Value;
-            bgw = new BackgroundWorker();
-            bgw.WorkerSupportsCancellation = true;
-            bgw.DoWork += new DoWorkEventHandler(bgw_DoWork);
-            bgw.RunWorkerAsync(argument: comboBox1.SelectedItem);
+            await DoWork(comboBox1.SelectedItem);
         }
 
-        private void btnReset_Click(object sender, EventArgs e)
+        private async void btnReset_Click(object sender, EventArgs e)
         {
-            if (bgw != null)
+            if (_isWorking)
             {
-                bgw.CancelAsync();
-                IsCancelling = true;
-                if (!bgw.IsBusy)
-                {
-                    IsCancelling = false;
-                }
+                Constants.IsCancelling = true;
             }
-            ClearTrackings();
             g = panel1.CreateGraphics();
-            MaxWidth = panel1.Width;
-            NumEntries = 10;
+            Constants.MaxWidth = panel1.Width;
+            Constants.NumEntries = 10;
             var isNum = int.TryParse(sizeTextBox.Text, out var num);
             if (isNum)
             {
                 if (num >= 10 && num <= 1000)
                 {
-                    if ((double)num / MaxWidth < 0.03)
+                    if ((double)num / Constants.MaxWidth < 0.03)
                     {
-                        Seperation = 0.95F;
+                        Constants.Seperation = 0.95F;
                     }
                     else
                     {
-                        Seperation = 1;
+                        Constants.Seperation = 1;
                     }
-                    NumEntries = num;
+                    Constants.NumEntries = num;
                 }
                 else
                 {
@@ -116,25 +86,25 @@ namespace SortVisualizer
                     sizeTextBox.Text = "10";
                 }
             }
-            Diff = MaxWidth - NumEntries;
+            Constants.Diff = Constants.MaxWidth - Constants.NumEntries;
             int MaxVal = panel1.Height;
-            TheArray = new double[NumEntries];
-            g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.Black), 0, 0, MaxWidth, MaxVal);
-            for (int i = 0; i < NumEntries; i++)
+            TheArray = new double[Constants.NumEntries];
+            g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.Black), 0, 0, Constants.MaxWidth, MaxVal);
+            for (int i = 0; i < Constants.NumEntries; i++)
             {
-                TheArray[i] = ((double)MaxVal / NumEntries) + (((double)MaxVal / NumEntries) * i);
+                TheArray[i] = ((double)MaxVal / Constants.NumEntries) + (((double)MaxVal / Constants.NumEntries) * i);
             }
             Shuffle();
-            for (int i = 0; i < NumEntries; i++)
+            for (int i = 0; i < Constants.NumEntries; i++)
             {
-                if (i == NumEntries - 1){}
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)MaxWidth / NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)MaxWidth / NumEntries) * Seperation), MaxVal);
+                if (i == Constants.NumEntries - 1){}
+                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)Constants.MaxWidth / Constants.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries) * Constants.Seperation), MaxVal);
             }
-            if (sender != null)
-            {
-                btnReset_Click(null, null);
-            }
+
+            await ClearTrackings();
         }
+
+        #region BackGroundStuff
 
         private void Shuffle()
         {
@@ -149,59 +119,42 @@ namespace SortVisualizer
             }
         }
 
-        #region BackGroundStuff
-
-        public void bgw_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        public async Task DoWork(object engineName)
         {
-            Delay = GetDelay();
-            BackgroundWorker bw = sender as BackgroundWorker;
-            BackgroundWorker zz = new BackgroundWorker();
-            zz.DoWork += new DoWorkEventHandler(bw_DoWork);
+            Constants.Delay = GetDelay();
             _isWorking = true;
 
-            string SortEngineName = (string)e.Argument;
-            if(!ConfirmLongRunTime(SortEngineName))
+            var Engine = engineName.ToString();
+            var confirmContinue = await ConfirmLongRunTimeAsync(Engine);
+            if (!confirmContinue)
             { 
                 return; 
             }
 
-            Type type = Type.GetType("SortVisualizer.SortEngine" + SortEngineName);
-            var ctors = type.GetConstructors();
             try
             {
-                ISortEngine se = (ISortEngine)ctors[0].Invoke(new object[] { TheArray, g, panel1.Height });
-                while (!se.IsSorted() && (!bgw.CancellationPending))
+                var se = SortEngineFactory.GetSortEngine(Engine, TheArray, g, panel1.Height);
+                while (!await se.IsSorted() && !Constants.IsCancelling)
                 {
-                    se.NextStep();
-                    NumOfRuns++;
+                    await se.NextStep();
+                    Constants.NumOfRuns++;
 
-                    if (!zz.IsBusy)
-                    {
-                        zz.RunWorkerAsync();
-                    }
+                    await UpdateLabel();
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
+            { }
+
+            if (Constants.IsCancelling)
             {
-            }
-            if (IsCancelling)
-            {
-                ClearTrackings();
+                await ClearTrackings();
                 btnReset_Click(null, null);
             }
-            IsCancelling = false;
+            Constants.IsCancelling = false;
             _isWorking = false;
         }
 
-        private void bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                Invoke((MethodInvoker)delegate { bw_DoWork(sender, e); });
-                return;
-            }
-            UpdateLabel();
-        }
+
 
         public int GetDelay()
         {
@@ -210,50 +163,73 @@ namespace SortVisualizer
                 case (0):
                     return 250;
                 case (1):
-                    return 50;
+                    return 100;
                 case (2):
-                    return 10;
+                    return 20;
                 case (3):
                     return 5;
                 case (4):
+                    return 1;
+                case (5):
                 default:
                     return 0;
             }
         }
 
-        private bool ConfirmLongRunTime(string engine)
+        private async Task<bool> ConfirmLongRunTimeAsync(string engine)
         {
-            if (engine.Contains("VerySlow") && TheArray.Length >= 30 && speed < 3)
+            return await Task.Run(() =>
             {
-                DialogResult dialogResult = MessageBox.Show("This can take a MANY minutes to finish.\nContinue?", "Very Slow Sorting Method", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.No)
+                if (engine.Contains("VerySlow") && TheArray.Length >= 30 && speed < 3)
                 {
-                    return false;
+                    DialogResult dialogResult = MessageBox.Show("This can take a MANY minutes to finish.\nContinue?", "Very Slow Sorting Method", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.No)
+                    {
+                        return false;
+                    }
                 }
-            }
-            if (TheArray.Length >= 100 && speed < 2)
-            {
-                DialogResult dialogResult = MessageBox.Show("This can take a many minutes to finish.\nContinue?", "Big Sample Size", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.No)
+                if (TheArray.Length >= 100 && speed < 4)
                 {
-                    return false;
+                    if (!engine.Contains("Quick") && speed < 2)
+                    {
+                        DialogResult dialogResult = MessageBox.Show("This can take a many minutes to finish.\nContinue?", "Big Sample Size", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.No)
+                        {
+                            return false;
+                        }
+                    }
                 }
-            }
-            return true;
+                else if (TheArray.Length >= 200 && speed < 5 && !engine.Contains("Quick"))
+                {
+                    if (!engine.Contains("Quick") && speed < 3)
+                    {
+                        DialogResult dialogResult = MessageBox.Show("This can take a many minutes to finish.\nContinue?", "Big Sample Size", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.No)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            });
         }
 
-        private void UpdateLabel()
+        private async Task UpdateLabel()
         {
-            compLabel.Text = Comparisons.ToString();
-            swapLabel.Text = Swaps.ToString();
+            compLabel.Text = Constants.Comparisons.ToString();
+            swapLabel.Text = Constants.Swaps.ToString();
+            await Task.Delay(10);
         }
 
-        private void ClearTrackings()
+        private async Task ClearTrackings()
         {
-            NumOfRuns = 0;
-            Swaps = 0;
-            Comparisons = 0;
-            UpdateLabel();
+            await Task.Run(() =>
+            {
+                Constants.NumOfRuns = 0;
+                Constants.Swaps = 0;
+                Constants.Comparisons = 0;
+            });
+            await UpdateLabel();
         }
 
         #endregion

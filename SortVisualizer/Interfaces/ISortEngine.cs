@@ -9,8 +9,8 @@ namespace SortVisualizer
 {
     public interface ISortEngine
     {
-        void NextStep();
-        bool IsSorted();
+        Task NextStep();
+        Task<bool> IsSorted();
 
         void ReDraw();
     }

@@ -30,13 +30,13 @@ namespace SortVisualizer
             ReDraw();
         }
 
-        public void NextStep()
+        public async Task NextStep()
         {
             //Using Recursion for this so it doesnt exactly fit the setup to use NextStep well. so using if statements to check if cancelling is occuring to exit early out of recursion.
-            SortArray(TheArray, originalLeftIndex, originalRightIndex); 
+            await SortArray(TheArray, originalLeftIndex, originalRightIndex); 
         }
 
-        public void SortArray(double[] array, int leftIndex, int rightIndex)
+        public async Task SortArray(double[] array, int leftIndex, int rightIndex)
         {
             var i = leftIndex;
             var p = rightIndex;
@@ -47,12 +47,12 @@ namespace SortVisualizer
                 DrawSelectedBar(p, array[p]);
                 while (array[i] < pivot)
                 {
-                    if (Form1.IsCancelling)
+                    if (Constants.IsCancelling)
                     {
                         return;
                     }
-                    Form1.Comparisons++;
-                    Task.Delay(Form1.Delay).Wait();
+                    Constants.Comparisons++;
+                    await Task.Delay(Constants.Delay);
                     DrawBar(i, array[i]);
                     i++;
                     DrawSelectedBar(i, array[i]);
@@ -60,12 +60,12 @@ namespace SortVisualizer
 
                 while (array[p] > pivot)
                 {
-                    if (Form1.IsCancelling)
+                    if (Constants.IsCancelling)
                     {
                         return;
                     }
-                    Form1.Comparisons++;
-                    Task.Delay(Form1.Delay).Wait();
+                    Constants.Comparisons++;
+                    await Task.Delay(Constants.Delay);
                     DrawBar(p, array[p]);
                     p--;
                     DrawSelectedBar(p, array[p]);
@@ -74,9 +74,9 @@ namespace SortVisualizer
                 {
                     DrawSelectedBar(i, array[i]);
                     DrawSelectedBar(p, array[p]);
-                    Task.Delay(Form1.Delay).Wait();
+                    await Task.Delay(Constants.Delay);
                     Swap(i, p);
-                    Form1.Swaps++;
+                    Constants.Swaps++;
                     i++;
                     p--;
                 }
@@ -89,7 +89,7 @@ namespace SortVisualizer
                 {
                     DrawBar(i, array[i]);
                 }
-                SortArray(array, leftIndex, p);
+                await SortArray(array, leftIndex, p);
             }
             if (i < rightIndex)
             {
@@ -98,7 +98,7 @@ namespace SortVisualizer
                 {
                     DrawBar(p, array[p]);
                 }
-                SortArray(array, i, rightIndex);
+                await SortArray(array, i, rightIndex);
             }
         }
 
@@ -114,31 +114,36 @@ namespace SortVisualizer
 
         private void DrawBar(int position, double height)
         {
-            g.FillRectangle(BlackBrush, (float)(position * ((double)Form1.MaxWidth / Form1.NumEntries)), 0, (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries)), MaxVal);
-            g.FillRectangle(WhiteBrush, (float)(position * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[position]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), (float)height);
+            g.FillRectangle(BlackBrush, (float)(position * ((double)Constants.MaxWidth / Constants.NumEntries)), 0, (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries)), MaxVal);
+            g.FillRectangle(WhiteBrush, (float)(position * ((double)Constants.MaxWidth / Constants.NumEntries)), (float)(MaxVal - TheArray[position]), (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries) * Constants.Seperation), (float)height);
         }
 
         private void DrawSelectedBar(int position, double height)
         {
-            g.FillRectangle(PinkBrush, (float)(position * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[position]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), (float)height);
+            g.FillRectangle(PinkBrush, (float)(position * ((double)Constants.MaxWidth / Constants.NumEntries)), (float)(MaxVal - TheArray[position]), (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries) * Constants.Seperation), (float)height);
         }
 
-        public bool IsSorted()
+        public async Task<bool> IsSorted()
         {
             ReDraw();
-            for (int i = 0; i < TheArray.Count() - 1; i++)
-            {
-                if (TheArray[i] > TheArray[i + 1]) return false;
-            }
-            return true;
+            return await Task.Run(() => {
+                for (int i = 0; i < TheArray.Count() - 1; i++)
+                {
+                    if (TheArray[i] > TheArray[i + 1]) return false;
+                }
+                return true;
+            });
+            
         }
 
         public void ReDraw()
         {
             for (int i = 0; i < (TheArray.Count() - 1); i++)
             {
-                g.FillRectangle(WhiteBrush, (float)(i * ((double)Form1.MaxWidth / Form1.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Form1.MaxWidth / Form1.NumEntries) * Form1.Seperation), MaxVal);
+                g.FillRectangle(WhiteBrush, (float)(i * ((double)Constants.MaxWidth / Constants.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries) * Constants.Seperation), MaxVal);
             }
         }
+
+        public delegate void LabelUpdateCallBackPointer();
     }
 }
