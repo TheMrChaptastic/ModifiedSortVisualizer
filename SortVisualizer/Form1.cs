@@ -13,11 +13,11 @@ namespace SortVisualizer
 {
     public partial class Form1 : Form
     {
+        string _engine;
         double[] TheArray;
         int speed = 0;
         bool _isWorking = false;
         Graphics g;
-
 
         public Form1()
         {
@@ -46,7 +46,8 @@ namespace SortVisualizer
         private async void btnStart_Click(object sender, EventArgs e)
         {
             if(Constants.IsCancelling == true || _isWorking == true) 
-            { 
+            {
+                btnReset_Click(null, null);
                 MessageBox.Show("Let current worker finish before starting another.\nClick 'Reset' if trying to make changes.");
                 return; 
             }
@@ -124,26 +125,27 @@ namespace SortVisualizer
             Constants.Delay = GetDelay();
             _isWorking = true;
 
-            var Engine = engineName.ToString();
-            var confirmContinue = await ConfirmLongRunTimeAsync(Engine);
+            _engine = engineName.ToString();
+            var confirmContinue = await ConfirmLongRunTimeAsync(_engine);
             if (!confirmContinue)
-            { 
+            {
+                _isWorking = false;
                 return; 
             }
 
             try
             {
-                var se = SortEngineFactory.GetSortEngine(Engine, TheArray, g, panel1.Height);
+                var se = SortEngineFactory.GetSortEngine(_engine, TheArray, g, panel1.Height, this);
                 while (!await se.IsSorted() && !Constants.IsCancelling)
                 {
                     await se.NextStep();
                     Constants.NumOfRuns++;
-
-                    await UpdateLabel();
                 }
             }
             catch (Exception e)
-            { }
+            {
+                MessageBox.Show(e.Message,"Error Occured");
+            }
 
             if (Constants.IsCancelling)
             {
@@ -152,6 +154,8 @@ namespace SortVisualizer
             }
             Constants.IsCancelling = false;
             _isWorking = false;
+
+            await UpdateLabel();
         }
 
 
@@ -182,43 +186,50 @@ namespace SortVisualizer
             {
                 if (engine.Contains("VerySlow") && TheArray.Length >= 30 && speed < 3)
                 {
-                    DialogResult dialogResult = MessageBox.Show("This can take a MANY minutes to finish.\nContinue?", "Very Slow Sorting Method", MessageBoxButtons.YesNo);
-                    if (dialogResult == DialogResult.No)
+                    return ShowContinueConfirmationBox();
+                }
+                if (TheArray.Length >= 200 && speed < 5)
+                {
+                    if (!engine.Contains("Quick"))
                     {
-                        return false;
+                        return ShowContinueConfirmationBox();
                     }
                 }
-                if (TheArray.Length >= 100 && speed < 4)
+                else if (TheArray.Length >= 100 && speed < 4)
                 {
-                    if (!engine.Contains("Quick") && speed < 2)
+                    if (!engine.Contains("Quick"))
                     {
-                        DialogResult dialogResult = MessageBox.Show("This can take a many minutes to finish.\nContinue?", "Big Sample Size", MessageBoxButtons.YesNo);
-                        if (dialogResult == DialogResult.No)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                else if (TheArray.Length >= 200 && speed < 5 && !engine.Contains("Quick"))
-                {
-                    if (!engine.Contains("Quick") && speed < 3)
-                    {
-                        DialogResult dialogResult = MessageBox.Show("This can take a many minutes to finish.\nContinue?", "Big Sample Size", MessageBoxButtons.YesNo);
-                        if (dialogResult == DialogResult.No)
-                        {
-                            return false;
-                        }
+                        return ShowContinueConfirmationBox();
                     }
                 }
                 return true;
             });
         }
 
-        private async Task UpdateLabel()
+        private bool ShowContinueConfirmationBox()
         {
-            compLabel.Text = Constants.Comparisons.ToString();
-            swapLabel.Text = Constants.Swaps.ToString();
-            await Task.Delay(10);
+            DialogResult dialogResult = MessageBox.Show("This can take a MANY minutes to finish.\nContinue?", "Very Slow Sorting Method", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.No)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public async Task UpdateLabel()
+        {
+            if (_engine == "Bubble" && speed == 5 && _isWorking || _engine == "Quick" && speed == 5 && _isWorking)
+            {
+                return;
+            }
+            await Task.Run(() => {
+                BeginInvoke(new Action(() =>
+                {
+                    compLabel.Text = Constants.Comparisons.ToString();
+                    swapLabel.Text = Constants.Swaps.ToString();
+                }));
+            });
+            await Task.Delay(Constants.Delay);
         }
 
         private async Task ClearTrackings()

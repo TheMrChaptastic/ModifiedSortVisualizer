@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SortVisualizer 
 {
@@ -12,17 +13,19 @@ namespace SortVisualizer
         private int originalLeftIndex;
         private int originalRightIndex;
         private double[] TheArray;
+        private Form1 _form;
         private Graphics g;
         private int MaxVal;
         Brush WhiteBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
         Brush BlackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
         Brush PinkBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
 
-        public SortEngineQuick(double[] TheArray_In, Graphics g_In, int MaxVal_In)
+        public SortEngineQuick(double[] TheArray_In, Graphics g_In, int MaxVal_In, Form1 form)
         {
             TheArray = TheArray_In;
             g = g_In;
             MaxVal = MaxVal_In;
+            _form = form;
 
             originalLeftIndex = 0;
             originalRightIndex = TheArray.Length - 1;
@@ -52,7 +55,7 @@ namespace SortVisualizer
                         return;
                     }
                     Constants.Comparisons++;
-                    await Task.Delay(Constants.Delay);
+                    await _form.UpdateLabel();
                     DrawBar(i, array[i]);
                     i++;
                     DrawSelectedBar(i, array[i]);
@@ -65,7 +68,7 @@ namespace SortVisualizer
                         return;
                     }
                     Constants.Comparisons++;
-                    await Task.Delay(Constants.Delay);
+                    await _form.UpdateLabel();
                     DrawBar(p, array[p]);
                     p--;
                     DrawSelectedBar(p, array[p]);
@@ -77,6 +80,7 @@ namespace SortVisualizer
                     await Task.Delay(Constants.Delay);
                     Swap(i, p);
                     Constants.Swaps++;
+                    await _form.UpdateLabel();
                     i++;
                     p--;
                 }

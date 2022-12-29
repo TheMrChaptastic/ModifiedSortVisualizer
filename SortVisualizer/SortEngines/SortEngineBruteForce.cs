@@ -4,23 +4,26 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SortVisualizer
 {
     class SortEngineBruteForce : ISortEngine
     {
         private double[] TheArray;
+        private Form1 _form;
         private Graphics g;
         private int MaxVal;
         Brush WhiteBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
         Brush BlackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
         Brush PinkBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
 
-        public SortEngineBruteForce(double[] TheArray_In, Graphics g_In, int MaxVal_In)
+        public SortEngineBruteForce(double[] TheArray_In, Graphics g_In, int MaxVal_In, Form1 form)
         {
             TheArray = TheArray_In;
             g = g_In;
             MaxVal = MaxVal_In;
+            _form = form;
 
             ReDraw();
         }
@@ -37,13 +40,14 @@ namespace SortVisualizer
                         break;
                     }
                     DrawSelectedBar(u, TheArray[u]);
-                    await Task.Delay(Constants.Delay);
                     Constants.Comparisons++;
+                    await _form.UpdateLabel();
                     if (TheArray[i] > TheArray[u])
                     {
                         Swap(i, u);
                         DrawSelectedBar(i, TheArray[i]);
                         Constants.Swaps++;
+                        await _form.UpdateLabel();
                     }
                     else
                     {

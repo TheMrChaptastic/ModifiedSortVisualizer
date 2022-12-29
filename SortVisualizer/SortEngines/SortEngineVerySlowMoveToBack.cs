@@ -4,12 +4,14 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SortVisualizer
 {
     class SortEngineVerySlowMoveToBack : ISortEngine
     {
         private double[] TheArray;
+        private Form1 _form;
         private Graphics g;
         private int MaxVal;
         Brush WhiteBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
@@ -18,11 +20,12 @@ namespace SortVisualizer
 
         private int CurrentListPointer = 0;
 
-        public SortEngineVerySlowMoveToBack(double[] TheArray_In, Graphics g_In, int MaxVal_In)
+        public SortEngineVerySlowMoveToBack(double[] TheArray_In, Graphics g_In, int MaxVal_In, Form1 form)
         {
             TheArray = TheArray_In;
             g = g_In;
             MaxVal = MaxVal_In;
+            _form = form;
 
             ReDraw();
         }
@@ -33,12 +36,13 @@ namespace SortVisualizer
             {
                 if (CurrentListPointer >= TheArray.Count() - 1) CurrentListPointer = 0;
                 DrawSelectedBar(CurrentListPointer, TheArray[CurrentListPointer]);
-                await Task.Delay(Constants.Delay);
                 Constants.Comparisons++;
+                await _form.UpdateLabel();
                 if (TheArray[CurrentListPointer] > TheArray[CurrentListPointer + 1])
                 {
                     Rotate(CurrentListPointer);
                     Constants.Swaps++;
+                    await _form.UpdateLabel();
                 }
                 else
                 {
