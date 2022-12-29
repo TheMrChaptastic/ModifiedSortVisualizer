@@ -45,9 +45,8 @@ namespace SortVisualizer
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
-            if(Constants.IsCancelling == true || _isWorking == true) 
+            if(Constants.IsCancelling == true && _isWorking == true) 
             {
-                btnReset_Click(null, null);
                 MessageBox.Show("Let current worker finish before starting another.\nClick 'Reset' if trying to make changes.");
                 return; 
             }

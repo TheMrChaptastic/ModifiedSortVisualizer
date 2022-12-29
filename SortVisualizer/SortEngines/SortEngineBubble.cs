@@ -31,28 +31,30 @@ namespace SortVisualizer
 
         public async Task NextStep()
         {
-            for (int i = 0; i < TheArray.Count() - Constants.NumOfRuns - 1; i++)
-            {
-                if (Constants.IsCancelling)
+            await Task.Run(async() => {
+                for (int i = 0; i < TheArray.Count() - Constants.NumOfRuns - 1; i++)
                 {
-                    break;
-                }
-                DrawSelectedBar(i, TheArray[i]);
-                DrawSelectedBar(i + 1, TheArray[i + 1]);
-                Constants.Comparisons++;
-                await _form.UpdateLabel();
-                if (TheArray[i] > TheArray[i + 1])
-                {
-                    Swap(i, i + 1);
-                    Constants.Swaps++;
+                    if (Constants.IsCancelling)
+                    {
+                        break;
+                    }
+                    DrawSelectedBar(i, TheArray[i]);
+                    DrawSelectedBar(i + 1, TheArray[i + 1]);
+                    Constants.Comparisons++;
                     await _form.UpdateLabel();
+                    if (TheArray[i] > TheArray[i + 1])
+                    {
+                        Swap(i, i + 1);
+                        Constants.Swaps++;
+                        await _form.UpdateLabel();
+                    }
+                    else
+                    {
+                        DrawBar(i, TheArray[i]);
+                        DrawBar(i + 1, TheArray[i + 1]);
+                    }
                 }
-                else
-                {
-                    DrawBar(i, TheArray[i]);
-                    DrawBar(i + 1, TheArray[i + 1]);
-                }
-            }
+            });
         }
 
         private void Swap(int i, int p)

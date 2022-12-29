@@ -32,24 +32,27 @@ namespace SortVisualizer
 
         public async Task NextStep()
         {
-            if (!Constants.IsCancelling)
+            await Task.Run(async () =>
             {
-                if (CurrentListPointer >= TheArray.Count() - 1) CurrentListPointer = 0;
-                DrawSelectedBar(CurrentListPointer, TheArray[CurrentListPointer]);
-                Constants.Comparisons++;
-                await _form.UpdateLabel();
-                if (TheArray[CurrentListPointer] > TheArray[CurrentListPointer + 1])
+                if (!Constants.IsCancelling)
                 {
-                    Rotate(CurrentListPointer);
-                    Constants.Swaps++;
+                    if (CurrentListPointer >= TheArray.Count() - 1) CurrentListPointer = 0;
+                    DrawSelectedBar(CurrentListPointer, TheArray[CurrentListPointer]);
+                    Constants.Comparisons++;
                     await _form.UpdateLabel();
+                    if (TheArray[CurrentListPointer] > TheArray[CurrentListPointer + 1])
+                    {
+                        Rotate(CurrentListPointer);
+                        Constants.Swaps++;
+                        await _form.UpdateLabel();
+                    }
+                    else
+                    {
+                        DrawBar(CurrentListPointer, TheArray[CurrentListPointer]);
+                    }
+                    CurrentListPointer++;
                 }
-                else
-                {
-                    DrawBar(CurrentListPointer, TheArray[CurrentListPointer]);
-                }
-                CurrentListPointer++;
-            }
+            });
         }
 
         private void Rotate(int currentListPointer)

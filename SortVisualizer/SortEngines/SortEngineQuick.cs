@@ -44,66 +44,74 @@ namespace SortVisualizer
             var i = leftIndex;
             var p = rightIndex;
             var pivot = array[leftIndex];
-            while (i <= p)
-            {
-                DrawSelectedBar(i, array[i]);
-                DrawSelectedBar(p, array[p]);
-                while (array[i] < pivot)
-                {
-                    if (Constants.IsCancelling)
-                    {
-                        return;
-                    }
-                    Constants.Comparisons++;
-                    await _form.UpdateLabel();
-                    DrawBar(i, array[i]);
-                    i++;
-                    DrawSelectedBar(i, array[i]);
-                }
-
-                while (array[p] > pivot)
-                {
-                    if (Constants.IsCancelling)
-                    {
-                        return;
-                    }
-                    Constants.Comparisons++;
-                    await _form.UpdateLabel();
-                    DrawBar(p, array[p]);
-                    p--;
-                    DrawSelectedBar(p, array[p]);
-                }
-                if (i <= p)
+            await Task.Run(async() => {
+                while (i <= p)
                 {
                     DrawSelectedBar(i, array[i]);
                     DrawSelectedBar(p, array[p]);
-                    await Task.Delay(Constants.Delay);
-                    Swap(i, p);
-                    Constants.Swaps++;
-                    await _form.UpdateLabel();
-                    i++;
-                    p--;
-                }
-            }
+                    while (array[i] < pivot)
+                    {
+                        if (Constants.IsCancelling)
+                        {
+                            return;
+                        }
+                        Constants.Comparisons++;
+                        await _form.UpdateLabel();
+                        DrawBar(i, array[i]);
+                        i++;
+                        DrawSelectedBar(i, array[i]);
+                    }
 
-            if (leftIndex < p)
-            {
-                DrawSelectedBar(p, array[p]);
-                if (i < TheArray.Length)
-                {
-                    DrawBar(i, array[i]);
+                    while (array[p] > pivot)
+                    {
+                        if (Constants.IsCancelling)
+                        {
+                            return;
+                        }
+                        Constants.Comparisons++;
+                        await _form.UpdateLabel();
+                        DrawBar(p, array[p]);
+                        p--;
+                        DrawSelectedBar(p, array[p]);
+                    }
+                    if (i <= p)
+                    {
+                        DrawSelectedBar(i, array[i]);
+                        DrawSelectedBar(p, array[p]);
+                        await Task.Delay(Constants.Delay);
+                        Swap(i, p);
+                        Constants.Swaps++;
+                        await _form.UpdateLabel();
+                        i++;
+                        p--;
+                    }
                 }
-                await SortArray(array, leftIndex, p);
-            }
-            if (i < rightIndex)
-            {
-                DrawSelectedBar(i, array[i]);
-                if (p >= 0)
+
+                if (Constants.IsCancelling)
                 {
-                    DrawBar(p, array[p]);
+                    return;
                 }
-                await SortArray(array, i, rightIndex);
-            }
+
+                if (leftIndex < p)
+                {
+                    DrawSelectedBar(p, array[p]);
+                    if (i < TheArray.Length)
+                    {
+                        DrawBar(i, array[i]);
+                    }
+                    await SortArray(array, leftIndex, p);
+                }
+                if (i < rightIndex)
+                {
+                    DrawSelectedBar(i, array[i]);
+                    if (p >= 0)
+                    {
+                        DrawBar(p, array[p]);
+                    }
+                    await SortArray(array, i, rightIndex);
+                }
+            });
+            
         }
 
         private void Swap(int i, int p)
@@ -129,7 +137,6 @@ namespace SortVisualizer
 
         public async Task<bool> IsSorted()
         {
-            ReDraw();
             return await Task.Run(() => {
                 for (int i = 0; i < TheArray.Count() - 1; i++)
                 {
