@@ -45,7 +45,7 @@ namespace SortVisualizer
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
-            if(Constants.IsCancelling == true && _isWorking == true) 
+            if(Constants.IsCancelling == true || _isWorking == true) 
             {
                 MessageBox.Show("Let current worker finish before starting another.\nClick 'Reset' if trying to make changes.");
                 return; 
@@ -183,7 +183,7 @@ namespace SortVisualizer
         {
             return await Task.Run(() =>
             {
-                if (engine.Contains("VerySlow") && TheArray.Length >= 30 && speed < 3)
+                if (engine.Contains("VerySlow") && TheArray.Length >= 100 || engine.Contains("VerySlow") && TheArray.Length >= 30 && speed < 3)
                 {
                     return ShowContinueConfirmationBox();
                 }

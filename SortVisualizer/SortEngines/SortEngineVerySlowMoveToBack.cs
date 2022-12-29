@@ -14,9 +14,9 @@ namespace SortVisualizer
         private Form1 _form;
         private Graphics g;
         private int MaxVal;
-        Brush WhiteBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
-        Brush BlackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
-        Brush PinkBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
+        Brush WhiteBrush = new SolidBrush(Color.White);
+        Brush BlackBrush = new SolidBrush(Color.Black);
+        Brush PinkBrush = new SolidBrush(Color.Pink);
 
         private int CurrentListPointer = 0;
 
@@ -95,7 +95,7 @@ namespace SortVisualizer
         {
             for (int i = 0; i < (TheArray.Count() - 1); i++)
             {
-                g.FillRectangle(new System.Drawing.SolidBrush(System.Drawing.Color.White), (float)(i * ((double)Constants.MaxWidth / Constants.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries) * Constants.Seperation), MaxVal);
+                g.FillRectangle(WhiteBrush, (float)(i * ((double)Constants.MaxWidth / Constants.NumEntries)), (float)(MaxVal - TheArray[i]), (float)(Math.Ceiling((double)Constants.MaxWidth / Constants.NumEntries) * Constants.Seperation), MaxVal);
             }
         }
     }
